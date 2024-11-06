@@ -1,7 +1,7 @@
 import Link from "next/link";
 import MaxWidthWrapper from "./MaxWidthWrapper";
 import { buttonVariants } from "@/components/ui/button";
-import { LoginLink, RegisterLink } from "@kinde-oss/kinde-auth-nextjs/server";
+import { LoginLink, LogoutLink, RegisterLink } from "@kinde-oss/kinde-auth-nextjs/server";
 import { ArrowRight } from "lucide-react";
 
 const Navbar = () => {
@@ -39,6 +39,7 @@ const Navbar = () => {
               >
                 Get started <ArrowRight className="ml-0.5 h-4 w-4" />
               </RegisterLink>
+              <LogoutLink>Log out</LogoutLink>
             </>
           </div>
         </div>
