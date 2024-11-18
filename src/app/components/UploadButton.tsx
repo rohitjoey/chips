@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useState } from "react";
 
 const UploadButton = () => {
@@ -14,10 +14,12 @@ const UploadButton = () => {
         if (!v) setIsOpen(v);
       }}
     >
-      <DialogTrigger onClick={() => setIsOpen(true)}  asChild>
+      <DialogTrigger onClick={() => setIsOpen(true)} asChild>
         <Button>Upload PDF</Button>
       </DialogTrigger>
-      <DialogContent>Congent</DialogContent>
+      <DialogContent>
+        <DialogTitle>Title</DialogTitle>Congent
+      </DialogContent>
     </Dialog>
   );
 };
