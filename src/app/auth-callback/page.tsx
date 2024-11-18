@@ -11,20 +11,21 @@ const Page = () => {
   const searchParams = useSearchParams();
   const origin = searchParams.get("origin");
 
-  const { data, isLoading } = trpc.authCallback.useQuery(undefined, {
-    retry: true,
-    retryDelay: 500,
-  });
+  const {  isSuccess, isError, isPending, error } =
+    trpc.authCallback.useQuery();
 
   useEffect(() => {
-    if (!isLoading) {
-      if (data && data?.isSuccess) {
-        router.push(origin ? `/${origin}` : "/dashboard");
-      } else {
+    if (!isPending) {
+      if (isSuccess === true) {
+        router.push(origin != null ? `/${origin}` : "/dashboard");
+        return;
+      }
+
+      if (error?.data?.code === "UNAUTHORIZED") {
         router.push("/sign-in");
       }
     }
-  }, [isLoading, data, origin, router]);
+  }, [isPending, isSuccess, isError]);
 
   return (
     <div className="w-full mt-24 flex justify-center">

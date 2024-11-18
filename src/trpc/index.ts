@@ -4,12 +4,18 @@ import { TRPCError } from "@trpc/server";
 import supabase from "@/db";
 
 export const appRouter = router({
+
+  
+
+
+    
+ 
   authCallback: publicProcedure.query(async () => {
     const { getUser } = getKindeServerSession();
 
     const user = await getUser();
 
-    if (!user?.id || !user?.email) throw new TRPCError({ code: "UNAUTHORIZED" });
+    if (!user?.id || !user?.email) throw new TRPCError({ code: "UNAUTHORIZED" ,message:"shit"});
 
     //check if the user is in the database
     const { data, error } = await supabase
@@ -22,7 +28,7 @@ export const appRouter = router({
       const res = await supabase.from("users").insert({ id: user?.id, email: user?.email });
     }
 
-    return { isSuccess: true };
+    return { isSuccesst: true };
   }),
 });
 
