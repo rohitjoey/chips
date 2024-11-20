@@ -2,6 +2,7 @@ import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { protectedProcedure, publicProcedure, router } from "./trpc";
 import { TRPCError } from "@trpc/server";
 import supabase from "@/db";
+import { z } from "zod"
 
 export const appRouter = router({
   authCallback: publicProcedure.query(async () => {
@@ -41,9 +42,34 @@ export const appRouter = router({
     return data;
   }),
 
-  // deleteUserFile:protectedProcedure.input(async()=>{
+  deleteUserFile: protectedProcedure.input(z.object({ id: z.string() })).mutation(async ({ ctx, input }) => {
+    const { userId } = ctx
 
-  // })
+    const { data, error } = await supabase.from('files').select().eq("id", input.id).eq("userId", userId).limit(1)
+      .single()
+
+    if (!data) throw new TRPCError({ code: "NOT_FOUND" })
+
+
+    const response = await supabase
+      .from('files')
+      .delete()
+      .eq('id', input.id)
+      .eq('userId', userId)
+
+    return response
+  }),
+
+  getFileFromId: protectedProcedure.input(z.object({ id: z.string() })).query(async ({ ctx, input }) => {
+    const { userId } = ctx
+
+    const { data, error } = await supabase.from('files').select().eq("id", input.id).eq("userId", userId).limit(1)
+      .single()
+
+    if (!data) throw new TRPCError({ code: "NOT_FOUND" })
+
+    return data
+  })
 });
 
 // Export type router type signature,
