@@ -1,25 +1,70 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { File, Loader2, Upload } from "lucide-react";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Progress } from "@/components/ui/progress";
+import { useToast } from "@/hooks/use-toast";
+import { useUploadThing } from "@/lib/uploadthing";
+import { File, Upload } from "lucide-react";
 import { useState } from "react";
 import Dropzone from "react-dropzone";
 
 const UploadDropZone = () => {
+  const [isUploading, setIsUploading] = useState<boolean>(false);
+  const [uploadProgress, setUploadProgress] = useState<number>(0);
 
-  const [isUploading, setIsUploading] = useState<boolean>(true)
+  const { toast } = useToast();
+
+  const { startUpload } = useUploadThing("pdfUploader");
+
+  const simulatedProgress = () => {
+    setUploadProgress(0);
+
+    const interval = setInterval(() => {
+      setUploadProgress((previousValue) => {
+        if (previousValue >= 95) {
+          clearInterval(interval);
+          return previousValue;
+        }
+        return previousValue + 5;
+      });
+    }, 500);
+
+    return interval;
+  };
 
   return (
     <Dropzone
       multiple={false}
-      onDrop={(acceptedFile) => {
-        console.log(acceptedFile);
+      onDrop={async (acceptedFile) => {
+        setIsUploading(true);
+
+        const progressInterval = simulatedProgress();
+
+        const res = await startUpload(acceptedFile);
+
+        if (!res) {
+          return toast({
+            title: "Something went wrong",
+            description: "Please try again later",
+            variant: "destructive",
+          });
+        }
+
+        const [fileResponse] = res;
+
+        const key = fileResponse?.key;
+
+        if (!key) {
+          return toast({
+            title: "Something went wrong",
+            description: "Please try again later",
+            variant: "destructive",
+          });
+        }
+
+        clearInterval(progressInterval);
+        setUploadProgress(100);
       }}
     >
       {({ getInputProps, getRootProps, acceptedFiles }) => (
@@ -53,7 +98,12 @@ const UploadDropZone = () => {
                 ) : null}
 
                 {isUploading ? (
-                  <Loader2 className="w-4 h-4 animate-spin mt-2" />
+                  <div className="w-full mt-4 max-w-xs mx-auto">
+                    <Progress
+                      value={uploadProgress}
+                      className="h-1 w-full bg-zinc-200"
+                    />
+                  </div>
                 ) : null}
               </div>
             </label>
