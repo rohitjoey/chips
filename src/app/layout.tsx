@@ -4,6 +4,7 @@ import Providers from "./components/Providers";
 import "./globals.css";
 import "react-loading-skeleton/dist/skeleton.css";
 import { Toaster } from "@/components/ui/toaster";
+import "simplebar-react/dist/simplebar.min.css";
 
 export default function RootLayout({
   children,
@@ -14,7 +15,7 @@ export default function RootLayout({
     <html lang="en" className="light">
       <Providers>
         <body className={cn("min-h-screen font-sans antialiased grainy")}>
-          <Toaster/>
+          <Toaster />
           <Navbar />
           {children}
         </body>
