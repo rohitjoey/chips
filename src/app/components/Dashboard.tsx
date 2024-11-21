@@ -90,7 +90,7 @@ const Dashboard = () => {
                     className="w-full"
                     variant={"destructive"}
                   >
-                    {currentlyDeletingFile ? (
+                    {currentlyDeletingFile == file.id ? (
                       <Loader2 className="h-4 w-2 animate-spin" />
                     ) : (
                       <Trash className="h-4 w-4" />

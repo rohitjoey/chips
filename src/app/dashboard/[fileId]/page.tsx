@@ -26,7 +26,6 @@ const Page = async ({ params }: PageProps) => {
 
   if (!data) notFound();
 
-  console.log("duio", data);
 
   return (
     <div className="flex-1 justify-between flex flex-col h-[col(100vh-3rem)]">

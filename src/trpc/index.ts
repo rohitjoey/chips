@@ -60,11 +60,12 @@ export const appRouter = router({
     return response
   }),
 
-  getFileFromId: protectedProcedure.input(z.object({ id: z.string() })).query(async ({ ctx, input }) => {
+  getFileFromKey: protectedProcedure.input(z.object({ key: z.string() })).mutation(async ({ ctx, input }) => {
     const { userId } = ctx
 
-    const { data, error } = await supabase.from('files').select().eq("id", input.id).eq("userId", userId).limit(1)
+    const { data, error } = await supabase.from('files').select().eq("key", input.key).eq("userId", userId).limit(1)
       .single()
+
 
     if (!data) throw new TRPCError({ code: "NOT_FOUND" })
 

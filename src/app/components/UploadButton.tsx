@@ -5,17 +5,29 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { useUploadThing } from "@/lib/uploadthing";
-import { File, Upload } from "lucide-react";
+import { File, Loader2, Upload } from "lucide-react";
 import { useState } from "react";
 import Dropzone from "react-dropzone";
+import { trpc } from "../_trpc/client";
+import { redirect, useRouter } from "next/navigation";
 
 const UploadDropZone = () => {
+  const router = useRouter();
+
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
 
   const { toast } = useToast();
 
   const { startUpload } = useUploadThing("pdfUploader");
+
+  const { mutate: startPolling } = trpc.getFileFromKey.useMutation({
+    onSuccess: (file) => {
+      router.push(`dashboard/${file.id}`);
+    },
+    retry: true,
+    retryDelay: 500,
+  });
 
   const simulatedProgress = () => {
     setUploadProgress(0);
@@ -65,14 +77,16 @@ const UploadDropZone = () => {
 
         clearInterval(progressInterval);
         setUploadProgress(100);
+
+        startPolling({ key });
       }}
     >
       {({ getInputProps, getRootProps, acceptedFiles }) => (
         <div
           {...getRootProps()}
           className="border h-64 m-4 border-dashed border-gray-600 rounded-lg"
+          onClick={(e) => e.stopPropagation()}
         >
-          <input {...getInputProps()} />
           <div className="flex items-center justify-center h-full w-full">
             <label
               htmlFor="dropzone-file"
@@ -85,27 +99,44 @@ const UploadDropZone = () => {
                   and drop the file.
                 </p>
                 <p className="text-xs text-zinc-500">PDF (upto 4MB)</p>
-                {acceptedFiles && acceptedFiles[0] ? (
-                  <div className="max-w-xs mt-4  bg-white flex items-center rounded-md overflow-hidden outline outline-[1px] outline-zinc-200 divide-x divide-zinc-200">
-                    <div className="px-3 py-2 h-full grid place-items-center">
-                      <File className="h-4 w-4 text-orange-500" />{" "}
-                      <span className="text-xs">1 file</span>
-                    </div>
-                    <div className="px-3 py-2 h-full text-sm truncate">
-                      {acceptedFiles[0].name}
-                    </div>
-                  </div>
-                ) : null}
-
-                {isUploading ? (
-                  <div className="w-full mt-4 max-w-xs mx-auto">
-                    <Progress
-                      value={uploadProgress}
-                      className="h-1 w-full bg-zinc-200"
-                    />
-                  </div>
-                ) : null}
               </div>
+
+              {acceptedFiles && acceptedFiles[0] ? (
+                <div className="max-w-xs mt-4  bg-white flex items-center rounded-md overflow-hidden outline outline-[1px] outline-zinc-200 divide-x divide-zinc-200">
+                  <div className="px-3 py-2 h-full grid place-items-center">
+                    <File className="h-4 w-4 text-orange-500" />{" "}
+                    <span className="text-xs">1 file</span>
+                  </div>
+                  <div className="px-3 py-2 h-full text-sm truncate">
+                    {acceptedFiles[0].name}
+                  </div>
+                </div>
+              ) : null}
+
+              {isUploading ? (
+                <div className="w-full mt-4 max-w-xs mx-auto">
+                  <Progress
+                    indicatorColor={
+                      uploadProgress === 100 ? "bg-green-500" : ""
+                    }
+                    value={uploadProgress}
+                    className="h-1 w-full bg-zinc-200"
+                  />
+                  {uploadProgress === 100 ? (
+                    <div className="flex gap-1 items-center justify-center text-sm text-zinc-700 text-center pt-2">
+                      <Loader2 className="h-2 w-3 animate-spin" /> Redirecting
+                      now...
+                    </div>
+                  ) : null}
+                </div>
+              ) : null}
+
+              <input
+                {...getInputProps()}
+                type="file"
+                id="dropzone-file"
+                className="hidden"
+              />
             </label>
           </div>
         </div>
