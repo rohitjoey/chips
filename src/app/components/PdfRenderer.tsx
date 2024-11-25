@@ -32,6 +32,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import PdfFullscreen from "./PdfFullScreenRenderer";
 
+pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+  "pdfjs-dist/build/pdf.worker.min.mjs",
+  import.meta.url
+).toString();
+
 interface PdfRendererProps {
   url: string;
 }
@@ -67,7 +72,6 @@ const PdfRenderer = ({ url }: PdfRendererProps) => {
     resolver: zodResolver(CustomPageValidator),
   });
 
-  console.log(errors);
 
   const { width, ref } = useResizeDetector();
 

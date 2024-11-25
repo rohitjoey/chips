@@ -1,4 +1,4 @@
-import ChatWrapper from "@/app/components/ChatWrapper";
+import ChatWrapper from "@/app/components/chat-components/ChatWrapper";
 import PdfRenderer from "@/app/components/PdfRenderer";
 import supabase from "@/db";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
@@ -26,7 +26,6 @@ const Page = async ({ params }: PageProps) => {
 
   if (!data) notFound();
 
-
   return (
     <div className="flex-1 justify-between flex flex-col h-[col(100vh-3rem)]">
       <div className="mx-auto w-full max-w-8xl grow lg:flex  xl:px-2">
@@ -37,7 +36,7 @@ const Page = async ({ params }: PageProps) => {
         </div>
 
         <div className="shrink-0 flex-[0.75] border-t border-gray-200 lg:w-96 lg:border-l lg:border-t-0  ">
-          <ChatWrapper />
+          <ChatWrapper fileId={fileId} />
         </div>
       </div>
     </div>

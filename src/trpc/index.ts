@@ -2,7 +2,7 @@ import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { protectedProcedure, publicProcedure, router } from "./trpc";
 import { TRPCError } from "@trpc/server";
 import supabase from "@/db";
-import { z } from "zod"
+import { z } from "zod";
 
 export const appRouter = router({
   authCallback: publicProcedure.query(async () => {
@@ -42,35 +42,72 @@ export const appRouter = router({
     return data;
   }),
 
-  deleteUserFile: protectedProcedure.input(z.object({ id: z.string() })).mutation(async ({ ctx, input }) => {
-    const { userId } = ctx
+  deleteUserFile: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const { userId } = ctx;
 
-    const { data, error } = await supabase.from('files').select().eq("id", input.id).eq("userId", userId).limit(1)
-      .single()
+      const { data, error } = await supabase
+        .from("files")
+        .select()
+        .eq("id", input.id)
+        .eq("userId", userId)
+        .limit(1)
+        .single();
 
-    if (!data) throw new TRPCError({ code: "NOT_FOUND" })
+      if (!data) throw new TRPCError({ code: "NOT_FOUND" });
 
+      const response = await supabase
+        .from("files")
+        .delete()
+        .eq("id", input.id)
+        .eq("userId", userId);
 
-    const response = await supabase
-      .from('files')
-      .delete()
-      .eq('id', input.id)
-      .eq('userId', userId)
+      return response;
+    }),
 
-    return response
-  }),
+  getFileFromKey: protectedProcedure
+    .input(z.object({ key: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const { userId } = ctx;
 
-  getFileFromKey: protectedProcedure.input(z.object({ key: z.string() })).mutation(async ({ ctx, input }) => {
-    const { userId } = ctx
+      const { data, error } = await supabase
+        .from("files")
+        .select()
+        .eq("key", input.key)
+        .eq("userId", userId)
+        .limit(1)
+        .single();
 
-    const { data, error } = await supabase.from('files').select().eq("key", input.key).eq("userId", userId).limit(1)
-      .single()
+      if (!data) throw new TRPCError({ code: "NOT_FOUND" });
 
+      return data;
+    }),
 
-    if (!data) throw new TRPCError({ code: "NOT_FOUND" })
-
-    return data
-  })
+  getFileStatus: protectedProcedure
+    .input(z.object({ fileId: z.string() }))
+    .output(
+      z.object({
+        status: z.enum(["PENDING", "PROCESSING", "SUCCESS", "FAILED"]),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const { data: file, error } = await supabase
+        .from("files")
+        .select()
+        .eq("id", input.fileId)
+        .eq("userId", ctx.userId)
+        .limit(1)
+        .single();
+      if (!file) return { status: "PENDING" as const };
+      return {
+        status: file.uploadStatus as
+          | "PENDING"
+          | "PROCESSING"
+          | "SUCCESS"
+          | "FAILED",
+      };
+    }),
 });
 
 // Export type router type signature,
