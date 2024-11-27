@@ -2,8 +2,15 @@ import supabase from "@/db";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { createUploadthing, type FileRouter } from "uploadthing/next";
 import { UploadThingError } from "uploadthing/server";
+import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
+import { OpenAIEmbeddings } from "@langchain/openai";
+import { PineconeStore } from "@langchain/pinecone";
+import { pinecone } from "@/lib/pinecone";
+import { PostgrestSingleResponse } from "@supabase/supabase-js";
+
 
 const f = createUploadthing();
+
 
 export const ourFileRouter = {
   pdfUploader: f({ pdf: { maxFileSize: "4MB" } })
@@ -24,7 +31,36 @@ export const ourFileRouter = {
           key: file.key,
           url: file.url,
           uploadStatus: "PROCESSING"
+        }).select().single();
+      try {
+        const response = await fetch(file.url)
+
+        const blob = await response.blob()
+        const loader = new PDFLoader(blob)
+        const pageLevelDocs = await loader.load()
+        const pagesAmt = pageLevelDocs.length
+
+        const pineconeIndex = pinecone.Index("chips")
+
+        const embeddings = new OpenAIEmbeddings({
+          apiKey: process.env.OPENAI_API_KEY,
         });
+
+        await PineconeStore.fromDocuments(pageLevelDocs, embeddings, { pineconeIndex, namespace: createdFile?.data?.id })
+
+        await supabase
+          .from('files')
+          .update({ uploadStatus: 'SUCCESS' })
+          .eq('id', createdFile?.data?.id!)
+        console.log("yeta")
+      } catch (error) {
+        console.log(error)
+        console.log("error ma")
+        await supabase
+          .from('files')
+          .update({ uploadStatus: 'FAILED' })
+          .eq('id', createdFile?.data?.id!)
+      }
     }),
 } satisfies FileRouter;
 
