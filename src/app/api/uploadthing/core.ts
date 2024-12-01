@@ -1,12 +1,10 @@
 import supabase from "@/db";
+import { pinecone } from "@/lib/pinecone";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
-import { createUploadthing, type FileRouter } from "uploadthing/next";
-import { UploadThingError } from "uploadthing/server";
 import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
 import { OpenAIEmbeddings } from "@langchain/openai";
 import { PineconeStore } from "@langchain/pinecone";
-import { pinecone } from "@/lib/pinecone";
-import { PostgrestSingleResponse } from "@supabase/supabase-js";
+import { createUploadthing, type FileRouter } from "uploadthing/next";
 
 
 const f = createUploadthing();
