@@ -15,11 +15,11 @@ export const POST = async (req: NextRequest) => {
     const { getUser } = getKindeServerSession()
     const user = await getUser()
 
-    if (!user || user.id) return new Response("Unauthorized", { status: 401 })
+    if (!user) return new Response("Unauthorized", { status: 401 })
     const { id: userId } = user
 
 
-    const { fileId, message } = SendMessageValidator.parse(body)
+    const { fileId, message} = SendMessageValidator.parse(body)
 
     const { data: file, error } = await supabase.from("files").select().eq("id", fileId).eq("userId", userId).single()
 
@@ -35,7 +35,7 @@ export const POST = async (req: NextRequest) => {
 
     const vectorStore = await PineconeStore.fromExistingIndex(embeddings, { pineconeIndex, namespace: file.id })
 
-    const results = await vectorStore.similaritySearch("this is", 4)
+    const results = await vectorStore.similaritySearch(message, 4)
 
     const { data: prevMessages } = await supabase.from("messages").select().order("created_at", { ascending: false }).limit(6)
 
@@ -70,7 +70,7 @@ export const POST = async (req: NextRequest) => {
         CONTEXT:
         ${results.map((r) => r.pageContent).join('\n\n')}
         
-        USER INPUT: ${"this is"}`,
+        USER INPUT: ${message}`,
             },
         ],
 
