@@ -1,9 +1,9 @@
-import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
-import { protectedProcedure, publicProcedure, router } from "./trpc";
-import { TRPCError } from "@trpc/server";
+import { INFINITE_QUERY_LIMIT } from "@/config/infinite-query";
 import supabase from "@/db";
+import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { INFINTE_QUERY_LIMIT } from "@/config/infinite-query";
+import { protectedProcedure, publicProcedure, router } from "./trpc";
 
 export const appRouter = router({
   authCallback: publicProcedure.query(async () => {
@@ -112,29 +112,29 @@ export const appRouter = router({
 
   getFileMessages: protectedProcedure.input(z.object({
     limit: z.number().min(1).max(100).nullable(),
-    cursor: z.date().nullish(),
+    cursor: z.string().nullish(),
     fileId: z.string()
   })).query(async ({ ctx, input }) => {
     const { userId } = ctx
     const { fileId, cursor } = input
-    const limit = input.limit ?? INFINTE_QUERY_LIMIT
+    const limit = input.limit ?? INFINITE_QUERY_LIMIT
 
     const { data: file, error } = await supabase.from("files").select().eq("id", fileId).eq("userId", userId).maybeSingle()
 
     if (!file) throw new TRPCError({ code: 'NOT_FOUND' })
 
-    const te = cursor ?? new Date()
+    const te = cursor ?? new Date().toISOString()
     const { data: messages } = await supabase.from("messages").
       select("id,created_at,isUserMessage,text")
       .eq("fileId", fileId)
       .order("created_at", { ascending: false })
       .limit(limit + 1)
-      .lte("created_at", te.toISOString())
+      .lte("created_at", te)
 
-    let nextCursor: typeof cursor | undefined = undefined
+    let nextCursor: typeof cursor
     if (messages && messages?.length > 0) {
       const nextItem = messages?.pop()
-      nextCursor = new Date(nextItem?.created_at!)
+      nextCursor = nextItem?.created_at
     }
     return {
       messages,

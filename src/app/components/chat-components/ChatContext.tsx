@@ -1,5 +1,5 @@
 import { trpc } from "@/app/_trpc/client";
-import { INFINTE_QUERY_LIMIT } from "@/config/infinite-query";
+import { INFINITE_QUERY_LIMIT } from "@/config/infinite-query";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import React, { createContext, ReactNode, useRef, useState } from "react";
@@ -61,7 +61,7 @@ export const ChatContextProvider = ({
       utils.getFileMessages.setInfiniteData(
         {
           fileId,
-          limit: INFINTE_QUERY_LIMIT,
+          limit: INFINITE_QUERY_LIMIT,
         },
         (old) => {
           if (!old) {
@@ -136,7 +136,7 @@ export const ChatContextProvider = ({
         utils.getFileMessages.setInfiniteData(
           {
             fileId,
-            limit: INFINTE_QUERY_LIMIT,
+            limit: INFINITE_QUERY_LIMIT,
           },
           (old) => {
             if (!old) return { pages: [], pageParams: [] };
@@ -188,7 +188,7 @@ export const ChatContextProvider = ({
       utils.getFileMessages.setData(
         {
           fileId,
-          limit: INFINTE_QUERY_LIMIT,
+          limit: INFINITE_QUERY_LIMIT,
         },
         { messages: context?.previousMessages ?? [] }
       );
