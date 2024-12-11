@@ -7,6 +7,7 @@ import { TooltipContent, TooltipTrigger } from "@radix-ui/react-tooltip";
 import { ArrowRight, Check, HelpCircle, Minus } from "lucide-react";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
+import UpgradeButton from "../components/UpgradeButton";
 
 const Page = async () => {
   const { getUser } = getKindeServerSession();
@@ -173,7 +174,7 @@ const Page = async () => {
                         <ArrowRight className="h-5 w-5 ml-1.5" />
                       </Link>
                     ) : user ? (
-                      <div />
+                      <UpgradeButton />
                     ) : (
                       <Link
                         href="/sign-in"

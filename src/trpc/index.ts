@@ -4,6 +4,9 @@ import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { protectedProcedure, publicProcedure, router } from "./trpc";
+import { absoluteUrl } from "@/lib/utils";
+import { getUserSubscriptionPlan, stripe } from "@/lib/stripe";
+import { PLANS } from "@/config/stripe";
 
 export const appRouter = router({
   authCallback: publicProcedure.query(async () => {
@@ -141,6 +144,41 @@ export const appRouter = router({
       nextCursor
     }
 
+  }),
+
+  createStripeSession: protectedProcedure.mutation(async ({ ctx }) => {
+    const { userId } = ctx
+    if (!userId) throw new TRPCError({ code: "UNAUTHORIZED" })
+
+    const billingUrl = absoluteUrl("/dashboard/billing")
+
+    const { data: dbUser } = await supabase.from("users").select().eq("id", userId).single()
+
+    if (!dbUser) throw new TRPCError({ code: "UNAUTHORIZED" })
+
+    const subscription = await getUserSubscriptionPlan()
+    if (subscription.isSubscribed && dbUser.stripeCustomerId) {
+      const stripeSession = await stripe.billingPortal.sessions.create({
+        customer: dbUser.stripeCustomerId,
+        return_url: billingUrl
+      })
+      return { url: stripeSession.url }
+    }
+
+    const stripeSession = await stripe.checkout.sessions.create({
+      success_url: billingUrl,
+      cancel_url: billingUrl,
+      payment_method_types: ['card', 'paypal'],
+      mode: "subscription",
+      billing_address_collection: "auto",
+      line_items: [{
+        price: PLANS.find((plan) => plan.name === 'Pro')?.price.priceIds.test,
+        quantity: 1
+      }],
+      metadata: { userId }
+
+    })
+    return { url: stripeSession.url }
   })
 });
 

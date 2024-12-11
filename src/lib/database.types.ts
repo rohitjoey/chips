@@ -97,7 +97,7 @@ export type Database = {
           created_at: string
           email: string
           id: string
-          stripeCurrentPeriodEnd: string | null
+          stripeCurrentPeriodEnd: Date | null
           stripeCustomerId: string | null
           stripePriceId: string | null
           stripeSubscriptionId: string | null
@@ -106,7 +106,7 @@ export type Database = {
           created_at?: string
           email: string
           id: string
-          stripeCurrentPeriodEnd?: string | null
+          stripeCurrentPeriodEnd?: Date | null
           stripeCustomerId?: string | null
           stripePriceId?: string | null
           stripeSubscriptionId?: string | null
@@ -115,7 +115,7 @@ export type Database = {
           created_at?: string
           email?: string
           id?: string
-          stripeCurrentPeriodEnd?: string | null
+          stripeCurrentPeriodEnd?: Date | null
           stripeCustomerId?: string | null
           stripePriceId?: string | null
           stripeSubscriptionId?: string | null
