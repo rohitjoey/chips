@@ -9,7 +9,7 @@ const Page = async () => {
 
   if (!user || !user.id) redirect("/auth-callback?origin=dashboard");
 
-  const { data, error } = await supabase
+  const { data } = await supabase
     .from("users")
     .select()
     .eq("id", user?.id)
@@ -17,7 +17,7 @@ const Page = async () => {
 
   if (!data?.length) redirect("/auth-callback?origin=dashboard");
 
-  return <Dashboard/>;
+  return <Dashboard />;
 };
 
 export default Page;

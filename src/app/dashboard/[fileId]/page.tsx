@@ -16,7 +16,7 @@ const Page = async ({ params }: PageProps) => {
 
   if (!user || !user.id) redirect(`/auth-callback?origin=/dashboard/${fileId}`);
 
-  const { data, error } = await supabase
+  const { data } = await supabase
     .from("files")
     .select()
     .eq("id", fileId)

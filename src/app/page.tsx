@@ -3,7 +3,6 @@ import MaxWidthWrapper from "./components/MaxWidthWrapper";
 import { ArrowRight } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import Image from "next/image";
-import Navbar from "./components/Navbar";
 
 export default function Home() {
   return (

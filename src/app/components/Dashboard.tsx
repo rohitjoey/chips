@@ -6,7 +6,6 @@ import {
   FilePlus,
   Ghost,
   Loader2,
-  MessageSquare,
   MessageSquareText,
   Trash,
 } from "lucide-react";

@@ -9,7 +9,7 @@ import { File, Loader2, Upload } from "lucide-react";
 import { useState } from "react";
 import Dropzone from "react-dropzone";
 import { trpc } from "../_trpc/client";
-import { redirect, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 const UploadDropZone = () => {
   const router = useRouter();

@@ -18,14 +18,14 @@ export const appRouter = router({
       throw new TRPCError({ code: "UNAUTHORIZED" });
 
     //check if the user is in the database
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from("users")
       .select()
       .eq("id", user?.id)
       .limit(1);
 
     if (!data?.length) {
-      const res = await supabase
+      await supabase
         .from("users")
         .insert({ id: user?.id, email: user?.email });
     }
@@ -51,7 +51,7 @@ export const appRouter = router({
     .mutation(async ({ ctx, input }) => {
       const { userId } = ctx;
 
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from("files")
         .select()
         .eq("id", input.id)
@@ -75,7 +75,7 @@ export const appRouter = router({
     .mutation(async ({ ctx, input }) => {
       const { userId } = ctx;
 
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from("files")
         .select()
         .eq("key", input.key)
@@ -96,7 +96,7 @@ export const appRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const { data: file, error } = await supabase
+      const { data: file } = await supabase
         .from("files")
         .select()
         .eq("id", input.fileId)
@@ -122,7 +122,7 @@ export const appRouter = router({
     const { fileId, cursor } = input
     const limit = input.limit ?? INFINITE_QUERY_LIMIT
 
-    const { data: file, error } = await supabase.from("files").select().eq("id", fileId).eq("userId", userId).maybeSingle()
+    const { data: file } = await supabase.from("files").select().eq("id", fileId).eq("userId", userId).maybeSingle()
 
     if (!file) throw new TRPCError({ code: 'NOT_FOUND' })
 

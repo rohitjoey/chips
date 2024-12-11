@@ -12,7 +12,7 @@ const f = createUploadthing();
 
 export const ourFileRouter = {
   pdfUploader: f({ pdf: { maxFileSize: "4MB" } })
-    .middleware(async ({ req }) => {
+    .middleware(async () => {
       const { getUser } = getKindeServerSession();
       const user = await getUser();
 
@@ -36,7 +36,7 @@ export const ourFileRouter = {
         const blob = await response.blob()
         const loader = new PDFLoader(blob)
         const pageLevelDocs = await loader.load()
-        const pagesAmt = pageLevelDocs.length
+        // const pagesAmt = pageLevelDocs.length
 
         const pineconeIndex = pinecone.Index("chips")
 

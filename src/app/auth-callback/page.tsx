@@ -11,8 +11,7 @@ const Page = () => {
   const searchParams = useSearchParams();
   const origin = searchParams.get("origin");
 
-  const {  isSuccess, isError, isPending, error } =
-    trpc.authCallback.useQuery();
+  const { isSuccess, isError, isPending, error } = trpc.authCallback.useQuery();
 
   useEffect(() => {
     if (!isPending) {
@@ -25,7 +24,7 @@ const Page = () => {
         router.push("/sign-in");
       }
     }
-  }, [isPending, isSuccess, isError]);
+  }, [isPending, isSuccess, isError, error?.data?.code, origin, router]);
 
   return (
     <div className="w-full mt-24 flex justify-center">

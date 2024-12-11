@@ -21,7 +21,7 @@ export const POST = async (req: NextRequest) => {
 
     const { fileId, message} = SendMessageValidator.parse(body)
 
-    const { data: file, error } = await supabase.from("files").select().eq("id", fileId).eq("userId", userId).single()
+    const { data: file } = await supabase.from("files").select().eq("id", fileId).eq("userId", userId).single()
 
     if (!file) return new Response("Not found", { status: 404 })
 
@@ -74,7 +74,7 @@ export const POST = async (req: NextRequest) => {
             },
         ],
 
-        async onFinish({ text, finishReason, usage, response }) {
+        async onFinish({ text }) {
             await supabase.from("messages").insert({ text, userId, isUserMessage: false, fileId })
 
         }
